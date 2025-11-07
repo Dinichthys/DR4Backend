@@ -223,12 +223,12 @@ namespace graphics {
     }
 
     void Image::SetPixel(unsigned x, unsigned y, dr4::Color color) {
-        ((sf::Image*) image_)->setPixel(x, y, sf::Color(color.r, color.b, color.g, color.a));
+        ((sf::Image*) image_)->setPixel(x, y, sf::Color(color.r, color.g, color.b, color.a));
     }
 
     dr4::Color Image::GetPixel(unsigned x, unsigned y) const {
         sf::Color color = ((sf::Image*) image_)->getPixel(x, y);
-        return dr4::Color(color.r, color.b, color.g, color.a);
+        return dr4::Color(color.r, color.g, color.b, color.a);
     }
 
     Color Image::GetPixelColor(unsigned x, unsigned y) const {
