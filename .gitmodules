@@ -1,3 +1,4 @@
 [submodule "mipt-ded-zemax"]
 	path = mipt-ded-zemax
-	url = https://github.com/random-username-here/mipt-ded-zemax
+	url = https://github.com/random-username-here/mipt-ded-zemax.git
+	branch = draft1
