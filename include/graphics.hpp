@@ -181,6 +181,8 @@ namespace graphics {
             void* GetImage() const {return image_;};
     };
 
+    const float kMinWidthTexture = 10;
+
     class Texture : public dr4::Texture {
         private:
             void* texture_;

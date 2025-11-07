@@ -256,10 +256,10 @@ namespace graphics {
 //-----------------TEXTURE------------------------------------------------------------------------------------
 
     Texture::Texture(float width, float height) {
+        width_ = (width > kMinWidthTexture) ? width : kMinWidthTexture;
+        height_ = (height > kMinWidthTexture) ? height : kMinWidthTexture;
         texture_ = new sf::RenderTexture();
-        ((sf::RenderTexture*) texture_)->create(width, height);
-        width_ = width;
-        height_ = height;
+        ((sf::RenderTexture*) texture_)->create(width_, height_);
     }
 
     Texture::Texture(const Texture& other) {
