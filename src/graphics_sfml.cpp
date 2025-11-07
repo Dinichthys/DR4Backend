@@ -458,15 +458,15 @@ namespace graphics {
     }
 
     float RenderWindow::GetWidth() const {
-        return ((sf::RenderWindow*)window_)->getSize().x;
+        return width_;
     };
 
     float RenderWindow::GetHeight() const {
-        return ((sf::RenderWindow*)window_)->getSize().y;
+        return height_;
     };
 
     dr4::Vec2f RenderWindow::GetSize() const {
-        return {((float)((sf::RenderWindow*)window_)->getSize().x), (float)(((sf::RenderWindow*)window_)->getSize().y)};
+        return {width_, height_};
     }
 
     void RenderWindow::SetSize(const ::dr4::Vec2f& size) {
