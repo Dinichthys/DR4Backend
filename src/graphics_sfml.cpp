@@ -298,6 +298,7 @@ namespace graphics {
         sf_rect.setFillColor(sf::Color(rect.fill.r, rect.fill.g, rect.fill.b, rect.fill.a));
         sf_rect.setPosition({rect.rect.pos.x, rect.rect.pos.y});
         sf_rect.setOutlineColor(sf::Color(rect.borderColor.r, rect.borderColor.g, rect.borderColor.b, rect.borderColor.a));
+        sf_rect.setOutlineThickness(rect.borderThickness);
         ((sf::RenderTexture*)texture_)->draw(sf_rect);
     }
 
