@@ -49,7 +49,9 @@ namespace graphics {
 //-----------------TEXT---------------------------------------------------------------------------------------
 
     Text::Text(const std::string& str_text, const std::string& font_file_name, unsigned char height)
-        :font_(), sf::Text(str_text, font_, height) {
+        :sf::Text(), font_() {
+        sf::Text::setString(str_text);
+        sf::Text::setCharacterSize(height);
         if (strcmp(font_file_name.c_str(), "") != 0) {
             font_.LoadFromFile(font_file_name);
         }
@@ -61,7 +63,7 @@ namespace graphics {
     }
 
     Text::Text(const Text& other)
-        :font_(other.font_), sf::Text(other) {
+        :sf::Text(other), font_(other.font_) {
         sf::Text::setFont(font_);
         text_ = other.text_;
         valign_ = other.valign_;
