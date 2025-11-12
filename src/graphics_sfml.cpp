@@ -416,24 +416,26 @@ namespace graphics {
 
         dr4::Event event;
 
-        if (kEventTypeTransformMap.find(sf_event.type) == kEventTypeTransformMap.end()) {
+        auto event_type_itr = kEventTypeTransformMap.find(sf_event.type);
+        if (event_type_itr == kEventTypeTransformMap.end()) {
             event.type = dr4::Event::Type::UNKNOWN;
             return event;
         }
 
-        event.type = kEventTypeTransformMap.at(sf_event.type);
+        event.type = event_type_itr->second;
 
         switch (event.type) {
             case dr4::Event::Type::QUIT : {
                 break;
             }
             case dr4::Event::Type::MOUSE_DOWN : case dr4::Event::Type::MOUSE_UP : {
-                if (kMouseButtonTransformMap.find(sf_event.mouseButton.button) == kMouseButtonTransformMap.end()) {
+                auto mouse_button_itr = kMouseButtonTransformMap.find(sf_event.mouseButton.button);
+                if (mouse_button_itr == kMouseButtonTransformMap.end()) {
                     event.mouseButton.button = dr4::MouseButtonType::UNKNOWN;
                     return event;
                 }
 
-                event.mouseButton.button = kMouseButtonTransformMap.at(sf_event.mouseButton.button);
+                event.mouseButton.button = mouse_button_itr->second;
                 Coordinates pos(GetMousePos());
                 event.mouseButton.pos = {pos[0], pos[1]};
                 break;
@@ -462,12 +464,13 @@ namespace graphics {
                                | ((sf_event.key.alt)    ? dr4::KeyMode::KEYMOD_ALT   : 1)
                                | ((sf_event.key.shift)  ? dr4::KeyMode::KEYMOD_SHIFT : 1);
 
-                if (kKeyCodeTransformMap.find(sf_event.key.scancode) == kKeyCodeTransformMap.end()) {
+                auto key_itr = kKeyCodeTransformMap.find(sf_event.key.scancode);
+                if (key_itr == kKeyCodeTransformMap.end()) {
                     event.key.sym = dr4::KeyCode::KEYCODE_UNKNOWN;
                     return event;
                 }
 
-                event.key.sym = kKeyCodeTransformMap.at(sf_event.key.scancode);
+                event.key.sym = key_itr->second;
                 break;
             }
             case dr4::Event::Type::TEXT_EVENT : {
