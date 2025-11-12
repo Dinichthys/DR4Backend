@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string>
 
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+
 #include "dr4/math/color.hpp"
 #include "dr4/texture.hpp"
 #include "dr4/window.hpp"
@@ -13,89 +18,24 @@
 
 namespace graphics {
 
-    static const float kMaxColor = 255;
-
-    class Color : public dr4::Color, public Coordinates {
+    class Font : public dr4::Font, public sf::Font {
         public:
-            explicit Color(float red = 0, float green = 0, float blue = 0, float brightness = kMaxColor)
-                :dr4::Color(red, green, blue, brightness), Coordinates(3, red, green, blue) {
-                a = (brightness > kMaxColor) ? kMaxColor : brightness;
-                if (red > kMaxColor) {
-                    r = kMaxColor;
-                }
-                if (green > kMaxColor) {
-                    g = kMaxColor;
-                }
-                if (blue > kMaxColor) {
-                    b = kMaxColor;
-                }
-            };
+            Font() = default;
 
-            explicit Color(const Coordinates& coors)
-                :dr4::Color(coors.Clump(0, kMaxColor)[0],
-                            coors.Clump(0, kMaxColor)[1],
-                            coors.Clump(0, kMaxColor)[2], kMaxColor),
-                 Coordinates(coors) {};
-
-            explicit Color(const dr4::Color& color)
-                :dr4::Color(color), Coordinates(color.r, color.g, color.b) {};
-
-            uint8_t GetRedPart() const {return r;};
-            uint8_t GetGreenPart() const {return g;};
-            uint8_t GetBluePart() const {return b;};
-
-            uint8_t GetBrightness() const {return a;};
-
-            void SetBrightness(uint8_t brightness) {a = brightness;};
-
-            Color operator + (const Color& another) const {
-                return Color(GetRedPart()    + another.GetRedPart(),
-                             GetGreenPart()  + another.GetGreenPart(),
-                             GetBluePart()   + another.GetBluePart(),
-                             GetBrightness() + another.GetBrightness());
-            };
-
-            Color operator * (float val) const {
-                return Color(GetRedPart()   * val,
-                             GetGreenPart() * val,
-                             GetBluePart()  * val);
-            };
-
-            Color operator / (float val) const {
-                return Color(GetRedPart()   / val,
-                             GetGreenPart() / val,
-                             GetBluePart()  / val);
-            };
-    };
-
-    const Color kColorWhite(255, 255, 255);
-    const Color kColorRed(255, 0, 0);
-    const Color kColorGreen(0, 255, 0);
-    const Color kColorBlue(0, 0, 255);
-    const Color kColorBrown(150, 75, 0);
-    const Color kColorCyan(0, 255, 255);
-    const Color kColorYellow(255, 255, 0);
-    const Color kColorBlack(19, 19, 19);
-
-    class FontImpl;
-
-    class Font : public dr4::Font {
-        private:
-            FontImpl* impl_;
-
-        public:
-            explicit Font();
             virtual ~Font();
 
-            virtual void loadFromFile(const std::string& path) override;
+            virtual void LoadFromFile(const std::string& path) override;
+            virtual void LoadFromBuffer(const void* buffer, size_t size) override;
 
-            FontImpl* GetFont() const {return impl_;};
+            virtual float GetAscent(float fontSize) const override;
+            virtual float GetDescent(float fontSize) const override;
     };
 
-    class Text : public dr4::Text {
+    class Text : public dr4::Text, public sf::Text {
         private:
-            void* text_;
-            void* font_;
+            Font font_ = {};
+            dr4::Text::VAlign valign_;
+            std::string text_;
 
         public:
             explicit Text(const std::string& text, const std::string& font_file_name, unsigned char height);
@@ -104,90 +44,137 @@ namespace graphics {
 
             ~Text();
 
-            void SetPosition(const Coordinates& lt_corner) const;
+            virtual void SetText(const std::string& text) override;
+            virtual void SetColor(dr4::Color color) override;
+            virtual void SetFontSize(float size) override;
+            virtual void SetVAlign(dr4::Text::VAlign align) override;
+            virtual void SetFont(const dr4::Font* font) override;
 
-            void SetText(const std::string& text);
-            void SetFont(const std::string& font);
+            virtual dr4::Vec2f GetBounds() const override;
+            virtual const std::string& GetText() const override;
+            virtual dr4::Color GetColor() const override;
+            virtual float GetFontSize() const override;
+            virtual dr4::Text::VAlign GetVAlign() const override;
+            virtual const dr4::Font& GetFont() const override;
 
-            void* GetText() const {return text_;};
+            virtual void DrawOn(dr4::Texture& texture) const override;
 
-            dr4::Rect2f GetBounds() const;
+            virtual void SetPos(dr4::Vec2f pos) override;
+
+            virtual dr4::Vec2f GetPos() const override;
     };
 
-    class VertexArray {
+    class Line : public dr4::Line, public sf::RectangleShape {
         private:
-            void* vertex_array_;
+            dr4::Vec2f start_;
+            dr4::Vec2f end_;
 
         public:
-            explicit VertexArray(size_t size);
+            explicit Line();
 
-            explicit VertexArray(const VertexArray& other);
+            virtual void SetStart(dr4::Vec2f start) override;
+            virtual void SetEnd(dr4::Vec2f end) override;
+            virtual void SetColor(dr4::Color color) override;
+            virtual void SetThickness(float thickness) override;
 
-            ~VertexArray();
+            virtual dr4::Vec2f GetStart() const override;
+            virtual dr4::Vec2f GetEnd() const override;
+            virtual dr4::Color GetColor() const override;
+            virtual float GetThickness() const override;
 
-            void SetPixelPosition(size_t index, const Coordinates& pos) const;
-            void SetPixelColor(size_t index, const Color& color) const;
+            virtual void DrawOn(dr4::Texture& texture) const override;
 
-            void* GetVertexArray() const {return vertex_array_;};
+            virtual void SetPos(dr4::Vec2f pos) override;
+
+            virtual dr4::Vec2f GetPos() const override;
     };
 
-    class RectangleShape : public dr4::Rectangle {
-        private:
-            void* rectangle_;
-
+    class Circle : public dr4::Circle, public sf::CircleShape {
         public:
-            explicit RectangleShape(const dr4::Vec2f& pos, const dr4::Vec2f& size);
+            explicit Circle();
 
-            explicit RectangleShape(const dr4::Rectangle& rect);
+            virtual void SetCenter(dr4::Vec2f center) override;
+            virtual void SetRadius(float radius) override;
+            virtual void SetFillColor(dr4::Color color) override;
+            virtual void SetBorderColor(dr4::Color color) override;
+            virtual void SetBorderThickness(float thickness) override;
+
+            virtual dr4::Vec2f GetCenter() const override;
+            virtual float GetRadius() const override;
+            virtual dr4::Color GetFillColor() const override;
+            virtual dr4::Color GetBorderColor() const override;
+            virtual float GetBorderThickness() const override;
+
+            virtual void DrawOn(dr4::Texture& texture) const override;
+
+            virtual void SetPos(dr4::Vec2f pos) override;
+
+            virtual dr4::Vec2f GetPos() const override;
+    };
+
+    class RectangleShape : public dr4::Rectangle, public sf::RectangleShape {
+        public:
+            explicit RectangleShape();
 
             explicit RectangleShape(const RectangleShape& other);
 
             ~RectangleShape();
 
-            void* GetRectangle() const {return rectangle_;};
+            virtual void SetSize(dr4::Vec2f size) override;
+            virtual void SetFillColor(dr4::Color color) override;
+            virtual void SetBorderThickness(float thickness) override;
+            virtual void SetBorderColor(dr4::Color color) override;
 
-            void SetSize(float width, float height);
+            virtual dr4::Vec2f GetSize() const override;
+            virtual dr4::Color GetFillColor() const override;
+            virtual float GetBorderThickness() const override;
+            virtual dr4::Color GetBorderColor() const override;
 
-            void SetPosition(const Coordinates& lt_corner);
+            void SetRotation(float angle);
+            void Rotate(float angle);
 
-            void SetRotation(float angle) const;
-            void Rotate(float angle) const;
+            virtual void DrawOn(dr4::Texture& texture) const override;
 
-            void SetOutlineColor(const graphics::Color color);
-            void SetFillColor(const graphics::Color color);
+            virtual void SetPos(dr4::Vec2f pos) override;
+
+            virtual dr4::Vec2f GetPos() const override;
     };
 
-    class Image : public dr4::Image {
+    class Image : public dr4::Image, public sf::Image {
         private:
-            void* image_;
             float width_;
             float height_;
+
+            dr4::Vec2f pos_;
 
         public:
             explicit Image(float width, float height);
 
             virtual ~Image();
 
-            virtual void SetPixel(unsigned x, unsigned y, Color color);
-            virtual void SetPixel(unsigned x, unsigned y, dr4::Color color) override;
-            virtual dr4::Color GetPixel(unsigned x, unsigned y) const override;
-            Color GetPixelColor(unsigned x, unsigned y) const;
+            virtual void SetPixel(size_t x, size_t y, dr4::Color color) override;
+            virtual dr4::Color GetPixel(size_t x, size_t y) const override;
 
             virtual void SetSize(dr4::Vec2f size) override;
             virtual dr4::Vec2f GetSize() const override;
             virtual float GetWidth() const override;
             virtual float GetHeight() const override;
 
-            void* GetImage() const {return image_;};
+            virtual void DrawOn(dr4::Texture& texture) const override;
+
+            virtual void SetPos(dr4::Vec2f pos) override;
+
+            virtual dr4::Vec2f GetPos() const override;
     };
 
     const float kMinWidthTexture = 10;
 
-    class Texture : public dr4::Texture {
+    class Texture : public dr4::Texture, public sf::RenderTexture {
         private:
-            void* texture_;
             float width_;
             float height_;
+
+            dr4::Vec2f pos_;
 
         public:
             explicit Texture(float width, float height);
@@ -200,26 +187,21 @@ namespace graphics {
             virtual float GetWidth() const override;
             virtual float GetHeight() const override;
 
-            virtual void Draw(const dr4::Rectangle &rect) override;
-            virtual void Draw(const dr4::Text &text) override;
-            virtual void Draw(const dr4::Image &img, const dr4::Vec2f &pos) override;
-            virtual void Draw(const dr4::Texture &texture, const dr4::Vec2f &pos) override;
+            virtual void Clear(dr4::Color color) override;
 
-            virtual void Display() const;
+            virtual void DrawOn(dr4::Texture& texture) const override;
 
-            virtual void Clear(dr4::Color color);
+            virtual void SetPos(dr4::Vec2f pos) override;
 
-            void* GetTexture() const {return texture_;};
+            virtual dr4::Vec2f GetPos() const override;
     };
 
     const size_t kStartWindowWidth = 720;
     const size_t kStartWindowHeight = 480;
 
-    class RenderWindow : public dr4::Window {
+    class RenderWindow : public dr4::Window, public sf::RenderWindow {
         private:
             std::string title_;
-
-            void* window_;
 
             float width_;
             float height_;
@@ -236,24 +218,22 @@ namespace graphics {
             float GetHeight() const;
 
             virtual dr4::Vec2f GetSize() const override;
-            virtual void SetSize(const ::dr4::Vec2f& size) override;
+            virtual void SetSize(dr4::Vec2f size) override;
 
             virtual void SetTitle(const std::string &title) override;
             virtual const std::string &GetTitle() const override;
 
-            void* GetWindow() const {return window_;};
-
-            virtual dr4::Texture *CreateTexture() override;
-            virtual dr4::Image *CreateImage() override;
-            virtual dr4::Font *CreateFont() override;
+            virtual dr4::Texture   *CreateTexture()   override;
+            virtual dr4::Image     *CreateImage()     override;
+            virtual dr4::Font      *CreateFont()      override;
+            virtual dr4::Line      *CreateLine()      override;
+            virtual dr4::Circle    *CreateCircle()    override;
+            virtual dr4::Rectangle *CreateRectangle() override;
+            virtual dr4::Text      *CreateText()      override;
 
             virtual std::optional<dr4::Event> PollEvent() override;
 
             Coordinates GetMousePos() const;
-
-            void Draw(const graphics::RectangleShape& rect) const;
-            void Draw(const graphics::VertexArray& arr) const;
-            void Draw(const graphics::Text& text) const;
 
             virtual void Draw(const dr4::Texture &texture, dr4::Vec2f pos) override;
 
@@ -264,7 +244,11 @@ namespace graphics {
             virtual void Open() override;
             virtual void Close() override;
 
-            virtual void Clear(const dr4::Color &color) override;
+            virtual void Clear(dr4::Color color) override;
+
+            double GetTime() override;
+            virtual void StartTextInput() override;
+            virtual void StopTextInput() override;
     };
 
 }

@@ -25,6 +25,14 @@ const cum::PluginVersion &graphics::Backend::GetVersion() const {
     return graphics::kVersion;
 }
 
-bool graphics::Backend::CheckCompatibles(const std::vector<cum::Plugin*>) const {
+std::vector<std::string> graphics::Backend::GetDependencies() const {
+    return {};
+}
+
+bool graphics::Backend::IsCompatibleWith(const cum::Plugin&) const {
+    return true;
+}
+
+bool graphics::Backend::Initialize() {
     return true;
 }

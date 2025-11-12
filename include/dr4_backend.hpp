@@ -16,14 +16,18 @@ namespace graphics {
             virtual const std::string &GetDescription() const override;
             virtual const cum::PluginVersion &GetVersion() const override;
 
-            virtual bool CheckCompatibles(const std::vector<cum::Plugin*>) const override;
+            virtual std::vector<std::string> GetDependencies() const override;
+            virtual bool IsCompatibleWith(const Plugin& other) const override;
+
+            virtual bool Initialize() override;
+            virtual void Shutdown() override {};
     };
 
     std::string const kBackendName = "DenDR4Backend";
 
     std::string const kDescription =
     "\t It's a plugin with implementation of methods\n"
-    "from standart namespace, dr4. It could be used \n"
+    "from standard namespace, dr4. It could be used \n"
     "for working with graphics and windows.\n";
 
     cum::PluginVersion const kVersion = {1, 4, 88};
