@@ -37,6 +37,8 @@ namespace graphics {
             dr4::Text::VAlign valign_;
             std::string text_;
 
+            dr4::Vec2f pos_;
+
         public:
             explicit Text(const std::string& text, const std::string& font_file_name, unsigned char height);
 
@@ -62,6 +64,8 @@ namespace graphics {
             virtual void SetPos(dr4::Vec2f pos) override;
 
             virtual dr4::Vec2f GetPos() const override;
+
+            void ChangeValign();
     };
 
     class Line : public dr4::Line, public sf::RectangleShape {
@@ -205,6 +209,8 @@ namespace graphics {
 
             float width_;
             float height_;
+
+            char buffer[sizeof(sf::Uint32) + 1];
 
         public:
             explicit RenderWindow(size_t width = kStartWindowWidth, size_t height = kStartWindowHeight, const char* window_name = "");

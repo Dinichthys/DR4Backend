@@ -49,7 +49,7 @@ namespace graphics {
 //-----------------TEXT---------------------------------------------------------------------------------------
 
     Text::Text(const std::string& str_text, const std::string& font_file_name, unsigned char height)
-        :sf::Text(), font_() {
+        :sf::Text(), font_(), pos_({0, 0}) {
         sf::Text::setString(str_text);
         sf::Text::setCharacterSize(height);
         if (strcmp(font_file_name.c_str(), "") != 0) {
@@ -59,7 +59,7 @@ namespace graphics {
         sf::Text::setFont(font_);
 
         text_ = str_text;
-        valign_ = dr4::Text::VAlign::BASELINE;
+        valign_ = dr4::Text::VAlign::TOP;
     }
 
     Text::Text(const Text& other)
@@ -83,6 +83,7 @@ namespace graphics {
     }
     void Text::SetVAlign(dr4::Text::VAlign valign) {
         valign_ = valign;
+        ChangeValign();
     }
     void Text::SetFont(const dr4::Font* font) {
         font_ = Font(*(dynamic_cast<const Font*>(font)));
@@ -111,15 +112,39 @@ namespace graphics {
     }
 
     void Text::SetPos(dr4::Vec2f pos) {
-        sf::Text::setPosition({pos.x, pos.y});
+        pos_ = pos;
+        ChangeValign();
     }
     dr4::Vec2f Text::GetPos() const {
-        sf::Vector2f pos = sf::Text::getPosition();
-        return {pos.x, pos.y};
+        return pos_;
     }
 
     void Text::DrawOn(dr4::Texture& texture) const {
        dynamic_cast<Texture&>(texture).draw(*this);
+    }
+
+    void Text::ChangeValign() {
+        switch(valign_) {
+            case dr4::Text::VAlign::BASELINE : {
+                sf::Text::setPosition({pos_.x, pos_.y - sf::Text::getLocalBounds().height
+                                                      + font_.getUnderlinePosition(sf::Text::getCharacterSize())});
+                return;
+            }
+            case dr4::Text::VAlign::BOTTOM : {
+                sf::Text::setPosition({pos_.x, pos_.y - sf::Text::getLocalBounds().height});
+                return;
+            }
+            case dr4::Text::VAlign::MIDDLE : {
+                sf::Text::setPosition({pos_.x, pos_.y - sf::Text::getLocalBounds().height / 2});
+                return;
+            }
+            case dr4::Text::VAlign::TOP : {
+                sf::Text::setPosition({pos_.x, pos_.y});
+                return;
+            }
+            default:
+                return;
+        }
     }
 
 //-----------------LINE---------------------------------------------------------------------------------------
@@ -474,7 +499,9 @@ namespace graphics {
                 break;
             }
             case dr4::Event::Type::TEXT_EVENT : {
-                // event.text.unicode = sf_event.text.unicode;
+                memmove(buffer, &(sf_event.text.unicode), sizeof(sf_event.text.unicode));
+                buffer[sizeof(sf_event.text.unicode)] = '\0';
+                event.text.unicode = buffer;
                 break;
             }
             default : {
