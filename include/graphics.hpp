@@ -179,9 +179,10 @@ namespace graphics {
             float height_;
 
             dr4::Vec2f pos_;
-            dr4::Vec2f extent_;
 
         public:
+            dr4::Vec2f extent_;
+
             explicit Texture(float width, float height);
             explicit Texture(const Texture& other);
 

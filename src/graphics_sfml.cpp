@@ -122,9 +122,7 @@ namespace graphics {
 
     void Text::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        sf::Text tmp(*this);
-        tmp.setPosition({pos_.x + my_texture.GetZero().x, pos_.y + my_texture.GetZero().y});
-        my_texture.draw(tmp);
+        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
     }
 
     void Text::ChangeValign() {
@@ -158,9 +156,14 @@ namespace graphics {
 
     void Line::SetStart(dr4::Vec2f start) {
         start_ = start;
+        sf::RectangleShape::setPosition({start_.x, start_.y});
     }
     void Line::SetEnd(dr4::Vec2f end) {
         end_ = end;
+        dr4::Vec2f delta = end_ - start_;
+        float len = sqrt(delta.x * delta.x + delta.y * delta.y);
+        float angle = asinf32(- delta.y / len);
+        sf::RectangleShape::rotate(angle);
     }
     void Line::SetColor(dr4::Color color) {
         sf::RectangleShape::setFillColor({color.r, color.g, color.b, color.a});
@@ -186,13 +189,7 @@ namespace graphics {
 
     void Line::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        sf::RectangleShape tmp(*this);
-        tmp.setPosition({start_.x + my_texture.GetZero().x, start_.y + my_texture.GetZero().y});
-        dr4::Vec2f delta = end_ - start_;
-        float len = sqrt(delta.x * delta.x + delta.y * delta.y);
-        float angle = asinf32(- delta.y / len);
-        tmp.rotate(angle);
-        my_texture.draw(tmp);
+        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
     }
 
     void Line::SetPos(dr4::Vec2f pos) {
@@ -244,10 +241,7 @@ namespace graphics {
 
     void Circle::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        sf::CircleShape tmp(*this);
-        auto pos = tmp.getPosition();
-        tmp.setPosition({pos.x + my_texture.GetZero().x, pos.y + my_texture.GetZero().y});
-        my_texture.draw(tmp);
+        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
     }
 
     void Circle::SetPos(dr4::Vec2f pos) {
@@ -313,10 +307,7 @@ namespace graphics {
 
     void RectangleShape::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        sf::RectangleShape tmp(*this);
-        auto pos = tmp.getPosition();
-        tmp.setPosition({pos.x + my_texture.GetZero().x, pos.y + my_texture.GetZero().y});
-        my_texture.draw(tmp);
+        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
     }
 
 //-----------------IMAGE--------------------------------------------------------------------------------------
@@ -370,7 +361,7 @@ namespace graphics {
 
         txtr.update(*this, pos_.x, pos_.y);
         sf::Sprite sprite(txtr);
-        sprite.setPosition({my_texture.GetZero().x, my_texture.GetZero().y});
+        sprite.setPosition({my_texture.extent_.x, my_texture.extent_.y});
         my_texture.draw(sprite);
     }
 
