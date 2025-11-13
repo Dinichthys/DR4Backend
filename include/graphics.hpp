@@ -179,6 +179,7 @@ namespace graphics {
             float height_;
 
             dr4::Vec2f pos_;
+            dr4::Vec2f extent_;
 
         public:
             explicit Texture(float width, float height);
@@ -190,6 +191,9 @@ namespace graphics {
             virtual dr4::Vec2f GetSize() const override;
             virtual float GetWidth() const override;
             virtual float GetHeight() const override;
+
+            virtual void SetZero(dr4::Vec2f pos) override;
+            virtual dr4::Vec2f GetZero() const override;
 
             virtual void Clear(dr4::Color color) override;
 
@@ -241,7 +245,7 @@ namespace graphics {
 
             Coordinates GetMousePos() const;
 
-            virtual void Draw(const dr4::Texture &texture, dr4::Vec2f pos) override;
+            virtual void Draw(const dr4::Texture &texture) override;
 
             virtual void Display() override;
 

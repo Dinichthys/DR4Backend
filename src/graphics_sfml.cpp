@@ -121,7 +121,10 @@ namespace graphics {
     }
 
     void Text::DrawOn(dr4::Texture& texture) const {
-       dynamic_cast<Texture&>(texture).draw(*this);
+        auto& my_texture = dynamic_cast<Texture&>(texture);
+        sf::Text tmp(*this);
+        tmp.setPosition({pos_.x + my_texture.GetZero().x, pos_.y + my_texture.GetZero().y});
+        my_texture.draw(tmp);
     }
 
     void Text::ChangeValign() {
@@ -155,14 +158,9 @@ namespace graphics {
 
     void Line::SetStart(dr4::Vec2f start) {
         start_ = start;
-        sf::RectangleShape::setPosition({start.x, start.y});
     }
     void Line::SetEnd(dr4::Vec2f end) {
         end_ = end;
-        dr4::Vec2f delta = end_ - start_;
-        float len = sqrt(delta.x * delta.x + delta.y * delta.y);
-        float angle = asinf32(- delta.y / len);
-        sf::RectangleShape::rotate(angle);
     }
     void Line::SetColor(dr4::Color color) {
         sf::RectangleShape::setFillColor({color.r, color.g, color.b, color.a});
@@ -187,7 +185,14 @@ namespace graphics {
     }
 
     void Line::DrawOn(dr4::Texture& texture) const {
-       dynamic_cast<Texture&>(texture).draw(*this);
+        auto& my_texture = dynamic_cast<Texture&>(texture);
+        sf::RectangleShape tmp(*this);
+        tmp.setPosition({start_.x + my_texture.GetZero().x, start_.y + my_texture.GetZero().y});
+        dr4::Vec2f delta = end_ - start_;
+        float len = sqrt(delta.x * delta.x + delta.y * delta.y);
+        float angle = asinf32(- delta.y / len);
+        tmp.rotate(angle);
+        my_texture.draw(tmp);
     }
 
     void Line::SetPos(dr4::Vec2f pos) {
@@ -238,7 +243,11 @@ namespace graphics {
     }
 
     void Circle::DrawOn(dr4::Texture& texture) const {
-       dynamic_cast<Texture&>(texture).draw(*this);
+        auto& my_texture = dynamic_cast<Texture&>(texture);
+        sf::CircleShape tmp(*this);
+        auto pos = tmp.getPosition();
+        tmp.setPosition({pos.x + my_texture.GetZero().x, pos.y + my_texture.GetZero().y});
+        my_texture.draw(tmp);
     }
 
     void Circle::SetPos(dr4::Vec2f pos) {
@@ -303,7 +312,11 @@ namespace graphics {
     }
 
     void RectangleShape::DrawOn(dr4::Texture& texture) const {
-       dynamic_cast<Texture&>(texture).draw(*this);
+        auto& my_texture = dynamic_cast<Texture&>(texture);
+        sf::RectangleShape tmp(*this);
+        auto pos = tmp.getPosition();
+        tmp.setPosition({pos.x + my_texture.GetZero().x, pos.y + my_texture.GetZero().y});
+        my_texture.draw(tmp);
     }
 
 //-----------------IMAGE--------------------------------------------------------------------------------------
@@ -357,7 +370,7 @@ namespace graphics {
 
         txtr.update(*this, pos_.x, pos_.y);
         sf::Sprite sprite(txtr);
-        sprite.setPosition({0, 0});
+        sprite.setPosition({my_texture.GetZero().x, my_texture.GetZero().y});
         my_texture.draw(sprite);
     }
 
@@ -369,6 +382,7 @@ namespace graphics {
         height_ = (height > kMinWidthTexture) ? height : kMinWidthTexture;
         sf::RenderTexture::create(width_, height_);
         pos_ = {0, 0};
+        extent_ = {0, 0};
     }
 
     Texture::Texture(const Texture& other)
@@ -377,6 +391,7 @@ namespace graphics {
         width_ = other.width_;
         height_ = other.height_;
         pos_ = other.pos_;
+        extent_ = other.extent_;
     }
 
     Texture::~Texture() {}
@@ -404,8 +419,15 @@ namespace graphics {
         (const_cast<Texture*>(this))->display();
 
         sf::Sprite sprite(sf::RenderTexture::getTexture());
-        sprite.setPosition({pos_.x, pos_.y});
+        sprite.setPosition({pos_.x + my_texture.extent_.x, pos_.y + my_texture.extent_.y});
         my_texture.draw(sprite);
+    }
+
+    void Texture::SetZero(dr4::Vec2f pos) {
+        extent_ = pos;
+    }
+    dr4::Vec2f Texture::GetZero() const {
+        return extent_;
     }
 
     void Texture::SetPos(dr4::Vec2f pos) {
@@ -571,11 +593,11 @@ namespace graphics {
                               (float)sf::Mouse::getPosition(*this).y / scale_y);
     }
 
-    void RenderWindow::Draw(const dr4::Texture &texture, dr4::Vec2f pos) {
+    void RenderWindow::Draw(const dr4::Texture &texture) {
         (const_cast<Texture&>(dynamic_cast<const Texture&>(texture))).display();
 
         sf::Sprite sprite(dynamic_cast<const Texture&>(texture).getTexture());
-        sprite.setPosition({pos.x, pos.y});
+        sprite.setPosition({0, 0});
         sf::RenderWindow::draw(sprite);
     }
 
