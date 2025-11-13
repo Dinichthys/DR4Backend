@@ -5,16 +5,12 @@ extern "C" dr4::DR4Backend* DR4_BACKEND_FUNCTION() {
     return new graphics::Backend();
 }
 
-const std::string &graphics::Backend::Name() const {
+const std::string &graphics::Backend::GetName() const {
     return graphics::kBackendName;
 }
 
 dr4::Window *graphics::Backend::CreateWindow() {
     return new graphics::RenderWindow();
-}
-
-const std::string &graphics::Backend::GetName() const {
-    return Name();
 }
 
 const std::string &graphics::Backend::GetDescription() const {
@@ -30,9 +26,5 @@ std::vector<std::string> graphics::Backend::GetDependencies() const {
 }
 
 bool graphics::Backend::IsCompatibleWith(const cum::Plugin&) const {
-    return true;
-}
-
-bool graphics::Backend::Initialize() {
     return true;
 }

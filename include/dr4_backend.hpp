@@ -1,14 +1,13 @@
 #ifndef DR4_BACKEND
 #define DR4_BACKEND
 
-#include "misc/dr4_ifc.hpp"
+#include "cum/dr4_ifc.hpp"
 #include "cum/plugin.hpp"
 
 namespace graphics {
 
-    class Backend : public dr4::DR4Backend, public cum::Plugin {
+    class Backend : public dr4::DR4Backend {
         public:
-            virtual const std::string &Name() const override;
             virtual dr4::Window *CreateWindow() override;
             inline virtual ~Backend() {};
 
@@ -18,9 +17,6 @@ namespace graphics {
 
             virtual std::vector<std::string> GetDependencies() const override;
             virtual bool IsCompatibleWith(const Plugin& other) const override;
-
-            virtual bool Initialize() override;
-            virtual void Shutdown() override {};
     };
 
     std::string const kBackendName = "DenDR4Backend";
