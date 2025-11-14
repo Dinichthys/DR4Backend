@@ -94,6 +94,10 @@ namespace graphics {
     };
 
     class Circle : public dr4::Circle, public sf::CircleShape {
+        private:
+            dr4::Vec2f center_;
+            float radius_;
+
         public:
             explicit Circle();
 

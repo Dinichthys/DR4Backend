@@ -205,10 +205,13 @@ namespace graphics {
         :sf::CircleShape() {}
 
     void Circle::SetCenter(dr4::Vec2f center) {
-        sf::CircleShape::setPosition({center.x, center.y});
+        sf::CircleShape::setPosition({center.x - radius_, center.y - radius_});
+        center_ = center;
     }
     void Circle::SetRadius(float radius) {
         sf::CircleShape::setRadius(radius);
+        radius_ = radius;
+        sf::CircleShape::setPosition({center_.x - radius_, center_.y - radius_});
     }
     void Circle::SetFillColor(dr4::Color color) {
         sf::CircleShape::setFillColor({color.r, color.g, color.b, color.a});
@@ -221,11 +224,10 @@ namespace graphics {
     }
 
     dr4::Vec2f Circle::GetCenter() const {
-        sf::Vector2f pos = sf::CircleShape::getPosition();
-        return {pos.x, pos.y};
+        return center_;
     }
     float Circle::GetRadius() const {
-        return sf::CircleShape::getRadius();
+        return radius_;
     }
     dr4::Color Circle::GetFillColor() const {
         sf::Color color = sf::CircleShape::getFillColor();
@@ -245,10 +247,11 @@ namespace graphics {
     }
 
     void Circle::SetPos(dr4::Vec2f pos) {
-        SetCenter(pos);
+        sf::CircleShape::setPosition({pos.x, pos.y});
+        center_ = {pos.x + radius_, pos.y + radius_};
     }
     dr4::Vec2f Circle::GetPos() const {
-        return GetCenter();
+        return {center_.x - radius_, center_.y - radius_};
     }
 
 //-----------------RECTANGLE SHAPE----------------------------------------------------------------------------
