@@ -161,8 +161,8 @@ namespace graphics {
             dr4::Vec2f delta = end_ - start_;
             float len = sqrt(delta.x * delta.x + delta.y * delta.y);
             sf::RectangleShape::setSize({len, sf::RectangleShape::getSize().y});
-            float angle = asinf32(- delta.y / len);
-            sf::RectangleShape::rotate(angle * 180 / M_PI);
+            float angle = asinf32(delta.y / len);
+            sf::RectangleShape::setRotation((delta.x > 0) ? angle * 180 / M_PI : 180 - angle * 180 / M_PI);
         }
     }
     void Line::SetEnd(dr4::Vec2f end) {
@@ -171,8 +171,8 @@ namespace graphics {
         dr4::Vec2f delta = end_ - start_;
         float len = sqrt(delta.x * delta.x + delta.y * delta.y);
         sf::RectangleShape::setSize({len, sf::RectangleShape::getSize().y});
-        float angle = asinf32(- delta.y / len);
-        sf::RectangleShape::rotate(angle * 180 / M_PI);
+        float angle = asinf32(delta.y / len);
+        sf::RectangleShape::setRotation((delta.x > 0) ? angle * 180 / M_PI : 180 - angle * 180 / M_PI);
     }
     void Line::SetColor(dr4::Color color) {
         sf::RectangleShape::setFillColor({color.r, color.g, color.b, color.a});
