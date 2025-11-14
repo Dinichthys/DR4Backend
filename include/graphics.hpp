@@ -73,6 +73,8 @@ namespace graphics {
             dr4::Vec2f start_;
             dr4::Vec2f end_;
 
+            bool end_changed_;
+
         public:
             explicit Line();
 
