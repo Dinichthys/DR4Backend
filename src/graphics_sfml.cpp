@@ -152,19 +152,27 @@ namespace graphics {
 //-----------------LINE---------------------------------------------------------------------------------------
 
     Line::Line()
-        :sf::RectangleShape() {};
+        :sf::RectangleShape() {end_changed_ = false;};
 
     void Line::SetStart(dr4::Vec2f start) {
         start_ = start;
         sf::RectangleShape::setPosition({start_.x, start_.y});
+        if (end_changed_) {
+            dr4::Vec2f delta = end_ - start_;
+            float len = sqrt(delta.x * delta.x + delta.y * delta.y);
+            sf::RectangleShape::setSize({len, sf::RectangleShape::getSize().y});
+            float angle = asinf32(- delta.y / len);
+            sf::RectangleShape::rotate(angle * 180 / M_PI);
+        }
     }
     void Line::SetEnd(dr4::Vec2f end) {
+        end_changed_ = true;
         end_ = end;
         dr4::Vec2f delta = end_ - start_;
         float len = sqrt(delta.x * delta.x + delta.y * delta.y);
         sf::RectangleShape::setSize({len, sf::RectangleShape::getSize().y});
         float angle = asinf32(- delta.y / len);
-        sf::RectangleShape::rotate(angle);
+        sf::RectangleShape::rotate(angle * 180 / M_PI);
     }
     void Line::SetColor(dr4::Color color) {
         sf::RectangleShape::setFillColor({color.r, color.g, color.b, color.a});

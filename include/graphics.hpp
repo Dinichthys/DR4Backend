@@ -70,6 +70,7 @@ namespace graphics {
 
     class Line : public dr4::Line, public sf::RectangleShape {
         private:
+            bool end_changed_;
             dr4::Vec2f start_;
             dr4::Vec2f end_;
 
