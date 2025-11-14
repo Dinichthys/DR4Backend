@@ -162,6 +162,7 @@ namespace graphics {
         end_ = end;
         dr4::Vec2f delta = end_ - start_;
         float len = sqrt(delta.x * delta.x + delta.y * delta.y);
+        sf::RectangleShape::setSize({len, sf::RectangleShape::getSize().y});
         float angle = asinf32(- delta.y / len);
         sf::RectangleShape::rotate(angle);
     }
