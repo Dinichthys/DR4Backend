@@ -1,36 +1,31 @@
 #ifndef DR4_BACKEND
 #define DR4_BACKEND
 
-#include "misc/dr4_ifc.hpp"
-#include "cum/plugin.hpp"
+#include "cum/ifc/dr4.hpp"
 
 namespace graphics {
-
-    class Backend : public dr4::DR4Backend, public cum::Plugin {
-        public:
-            virtual const std::string &Name() const override;
-            virtual dr4::Window *CreateWindow() override;
-            inline virtual ~Backend() {};
-
-            virtual const std::string &GetName() const override;
-            virtual const std::string &GetDescription() const override;
-            virtual const cum::PluginVersion &GetVersion() const override;
-
-            virtual std::vector<std::string> GetDependencies() const override;
-            virtual bool IsCompatibleWith(const Plugin& other) const override;
-
-            virtual bool Initialize() override;
-            virtual void Shutdown() override {};
-    };
 
     std::string const kBackendName = "DenDR4Backend";
 
     std::string const kDescription =
     "\t It's a plugin with implementation of methods\n"
-    "from standard namespace, dr4. It could be used \n"
-    "for working with graphics and windows.\n";
+    "from standard namespace, dr4. It could be used \n";
 
-    cum::PluginVersion const kVersion = {1, 4, 88};
+    class Backend : public cum::DR4BackendPlugin {
+        public:
+            virtual dr4::Window *CreateWindow() override;
+            inline virtual ~Backend() {};
+
+            virtual std::string_view GetIdentifier() const {return kBackendName;};
+            virtual std::string_view GetName() const {return kBackendName;};
+            virtual std::string_view GetDescription() const {return kDescription;};
+
+            virtual std::vector<std::string_view> GetDependencies() const {return {};};
+            virtual std::vector<std::string_view> GetConflicts() const {return {};};
+
+            virtual void AfterLoad() {};
+    };
+
 };
 
 #endif // DR4_BACKEND

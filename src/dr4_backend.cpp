@@ -1,38 +1,11 @@
 #include "../include/dr4_backend.hpp"
 #include "../include/graphics.hpp"
+#include "../mipt-ded-zemax/include/cum/manager.hpp"
 
-extern "C" dr4::DR4Backend* DR4_BACKEND_FUNCTION() {
+extern "C" cum::Plugin* CREATE_PLUGIN_FUNC_NAME() {
     return new graphics::Backend();
-}
-
-const std::string &graphics::Backend::Name() const {
-    return graphics::kBackendName;
 }
 
 dr4::Window *graphics::Backend::CreateWindow() {
     return new graphics::RenderWindow();
-}
-
-const std::string &graphics::Backend::GetName() const {
-    return Name();
-}
-
-const std::string &graphics::Backend::GetDescription() const {
-    return graphics::kDescription;
-}
-
-const cum::PluginVersion &graphics::Backend::GetVersion() const {
-    return graphics::kVersion;
-}
-
-std::vector<std::string> graphics::Backend::GetDependencies() const {
-    return {};
-}
-
-bool graphics::Backend::IsCompatibleWith(const cum::Plugin&) const {
-    return true;
-}
-
-bool graphics::Backend::Initialize() {
-    return true;
 }
