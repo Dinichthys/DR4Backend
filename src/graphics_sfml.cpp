@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string.h>
 #include <memory>
+#include <unistd.h>
 
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics.hpp>
@@ -48,23 +49,16 @@ namespace graphics {
 
 //-----------------TEXT---------------------------------------------------------------------------------------
 
-    Text::Text(const std::string& str_text, const std::string& font_file_name, unsigned char height)
-        :sf::Text(), font_(), pos_({0, 0}) {
-        sf::Text::setString(str_text);
-        sf::Text::setCharacterSize(height);
-        if (strcmp(font_file_name.c_str(), "") != 0) {
-            font_.LoadFromFile(font_file_name);
-        }
-
-        sf::Text::setFont(font_);
-
-        text_ = str_text;
+    Text::Text()
+        :sf::Text(), pos_({0, 0}) {
+        font_ = NULL;
+        text_ = "";
         valign_ = dr4::Text::VAlign::TOP;
     }
 
     Text::Text(const Text& other)
         :sf::Text(other), font_(other.font_) {
-        sf::Text::setFont(font_);
+        sf::Text::setFont(*font_);
         text_ = other.text_;
         valign_ = other.valign_;
     }
@@ -86,9 +80,9 @@ namespace graphics {
         ChangeValign();
     }
     void Text::SetFont(const dr4::Font* font) {
-        font_ = Font(*(dynamic_cast<const Font*>(font)));
+        font_ = dynamic_cast<const Font*>(font);
         delete font;
-        sf::Text::setFont(font_);
+        sf::Text::setFont(*font_);
     }
 
     dr4::Vec2f Text::GetBounds() const {
@@ -108,7 +102,7 @@ namespace graphics {
     dr4::Text::VAlign Text::GetVAlign() const {
         return valign_;
     }
-    const dr4::Font& Text::GetFont() const {
+    const dr4::Font *Text::GetFont() const {
         return font_;
     }
 
@@ -122,14 +116,16 @@ namespace graphics {
 
     void Text::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
+        my_texture.draw(*this, sf::RenderStates().transform.translate(
+            {my_texture.extent_.x, my_texture.extent_.y}
+        ));
     }
 
     void Text::ChangeValign() {
         switch(valign_) {
             case dr4::Text::VAlign::BASELINE : {
                 sf::Text::setPosition({pos_.x, pos_.y - sf::Text::getLocalBounds().height
-                                                      + font_.getUnderlinePosition(sf::Text::getCharacterSize())});
+                                                      + font_->getUnderlinePosition(sf::Text::getCharacterSize())});
                 return;
             }
             case dr4::Text::VAlign::BOTTOM : {
@@ -198,7 +194,9 @@ namespace graphics {
 
     void Line::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
+        my_texture.draw(*this, sf::RenderStates().transform.translate(
+            {my_texture.extent_.x, my_texture.extent_.y}
+        ));
     }
 
     void Line::SetPos(dr4::Vec2f pos) {
@@ -214,13 +212,14 @@ namespace graphics {
         :sf::CircleShape() {}
 
     void Circle::SetCenter(dr4::Vec2f center) {
-        sf::CircleShape::setPosition({center.x - radius_, center.y - radius_});
+        sf::CircleShape::setPosition({center.x - radius_.x, center.y - radius_.y});
         center_ = center;
     }
-    void Circle::SetRadius(float radius) {
-        sf::CircleShape::setRadius(radius);
+    void Circle::SetRadius(dr4::Vec2f radius) {
+        sf::CircleShape::setRadius(radius.x);
+        sf::CircleShape::scale({1, radius.y / radius.x});
         radius_ = radius;
-        sf::CircleShape::setPosition({center_.x - radius_, center_.y - radius_});
+        sf::CircleShape::setPosition({center_.x - radius_.x, center_.y - radius_.y});
     }
     void Circle::SetFillColor(dr4::Color color) {
         sf::CircleShape::setFillColor({color.r, color.g, color.b, color.a});
@@ -235,7 +234,7 @@ namespace graphics {
     dr4::Vec2f Circle::GetCenter() const {
         return center_;
     }
-    float Circle::GetRadius() const {
+    dr4::Vec2f Circle::GetRadius() const {
         return radius_;
     }
     dr4::Color Circle::GetFillColor() const {
@@ -252,15 +251,17 @@ namespace graphics {
 
     void Circle::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
+        my_texture.draw(*this, sf::RenderStates().transform.translate(
+            {my_texture.extent_.x, my_texture.extent_.y}
+        ));
     }
 
     void Circle::SetPos(dr4::Vec2f pos) {
         sf::CircleShape::setPosition({pos.x, pos.y});
-        center_ = {pos.x + radius_, pos.y + radius_};
+        center_ = {pos.x + radius_.x, pos.y + radius_.y};
     }
     dr4::Vec2f Circle::GetPos() const {
-        return {center_.x - radius_, center_.y - radius_};
+        return {center_.x - radius_.x, center_.y - radius_.y};
     }
 
 //-----------------RECTANGLE SHAPE----------------------------------------------------------------------------
@@ -319,7 +320,9 @@ namespace graphics {
 
     void RectangleShape::DrawOn(dr4::Texture& texture) const {
         auto& my_texture = dynamic_cast<Texture&>(texture);
-        my_texture.draw(*this, sf::RenderStates().transform.translate({my_texture.extent_.x, my_texture.extent_.y}));
+        my_texture.draw(*this, sf::RenderStates().transform.translate(
+            {my_texture.extent_.x, my_texture.extent_.y}
+        ));
     }
 
 //-----------------IMAGE--------------------------------------------------------------------------------------
@@ -373,7 +376,9 @@ namespace graphics {
 
         txtr.update(*this, pos_.x, pos_.y);
         sf::Sprite sprite(txtr);
-        sprite.setPosition({my_texture.extent_.x, my_texture.extent_.y});
+        sprite.setPosition(
+            {my_texture.extent_.x, my_texture.extent_.y}
+        );
         my_texture.draw(sprite);
     }
 
@@ -381,40 +386,39 @@ namespace graphics {
 
     Texture::Texture(float width, float height)
         :sf::RenderTexture() {
-        width_ = (width > kMinWidthTexture) ? width : kMinWidthTexture;
-        height_ = (height > kMinWidthTexture) ? height : kMinWidthTexture;
-        sf::RenderTexture::create(width_, height_);
-        pos_ = {0, 0};
+        main_rect_.size.x = (width > kMinWidthTexture) ? width : kMinWidthTexture;
+        main_rect_.size.y = (height > kMinWidthTexture) ? height : kMinWidthTexture;
+        sf::RenderTexture::create(main_rect_.size.x, main_rect_.size.y);
+        main_rect_.pos = {0, 0};
+        clip_rect_ = main_rect_;
         extent_ = {0, 0};
     }
 
     Texture::Texture(const Texture& other)
         :sf::RenderTexture() {
-        sf::RenderTexture::create(other.width_, other.height_);
-        width_ = other.width_;
-        height_ = other.height_;
-        pos_ = other.pos_;
-        extent_ = other.extent_;
+        sf::RenderTexture::create(other.main_rect_.size.x, other.main_rect_.size.y);
+        clip_rect_ = other.clip_rect_;
+        main_rect_ = other.main_rect_;
+        extent_ = {0, 0};
     }
 
     Texture::~Texture() {}
 
     void Texture::SetSize(dr4::Vec2f size) {
-        width_ = size.x;
-        height_ = size.y;
-        sf::RenderTexture::create(width_, height_);
+        main_rect_.size = size;
+        sf::RenderTexture::create(size.x, size.y);
     }
 
     dr4::Vec2f Texture::GetSize() const {
-        return dr4::Vec2f(width_, height_);
+        return main_rect_.size;
     }
 
     float Texture::GetWidth() const {
-        return width_;
+        return main_rect_.size.x;
     }
 
     float Texture::GetHeight() const {
-        return height_;
+        return main_rect_.size.y;
     }
 
     void Texture::DrawOn(dr4::Texture& texture) const {
@@ -422,7 +426,9 @@ namespace graphics {
         (const_cast<Texture*>(this))->display();
 
         sf::Sprite sprite(sf::RenderTexture::getTexture());
-        sprite.setPosition({pos_.x + my_texture.extent_.x, pos_.y + my_texture.extent_.y});
+        sprite.setPosition(
+            {main_rect_.pos.x + my_texture.extent_.x,
+             main_rect_.pos.y + my_texture.extent_.y});
         my_texture.draw(sprite);
     }
 
@@ -434,14 +440,36 @@ namespace graphics {
     }
 
     void Texture::SetPos(dr4::Vec2f pos) {
-        pos_ = pos;
+        main_rect_.pos = pos;
     }
     dr4::Vec2f Texture::GetPos() const {
-        return pos_;
+        return main_rect_.pos;
     }
 
     void Texture::Clear(dr4::Color color) {
         sf::RenderTexture::clear(sf::Color(color.r, color.g, color.b, color.a));
+    }
+
+    void Texture::SetClipRect(dr4::Rect2f rect) {
+        clip_rect_ = rect;
+        sf::RenderTexture::setView(
+            {{extent_.x + clip_rect_.pos.x + clip_rect_.size.x / 2,
+              extent_.y + clip_rect_.pos.y + clip_rect_.size.y / 2},
+             {clip_rect_.size.x, clip_rect_.size.y}}
+        );
+    }
+
+    void Texture::RemoveClipRect() {
+        clip_rect_.size = main_rect_.size;
+        clip_rect_.pos = -extent_;
+        sf::RenderTexture::setView(
+            {{clip_rect_.size.x / 2, clip_rect_.size.y / 2},
+             {clip_rect_.size.x,     clip_rect_.size.y    }}
+        );
+    }
+
+    dr4::Rect2f Texture::GetClipRect() const {
+        return clip_rect_;
     }
 
 //-----------------RENDER WINDOW------------------------------------------------------------------------------
@@ -500,11 +528,11 @@ namespace graphics {
             }
             case dr4::Event::Type::MOUSE_WHEEL : {
                 if (sf_event.mouseWheelScroll.wheel == sf::Mouse::Wheel::HorizontalWheel) {
-                    event.mouseWheel.deltaX = sf_event.mouseWheelScroll.delta;
-                    event.mouseWheel.deltaY = 0;
+                    event.mouseWheel.delta.x = sf_event.mouseWheelScroll.delta;
+                    event.mouseWheel.delta.y = 0;
                 } else {
-                    event.mouseWheel.deltaX = 0;
-                    event.mouseWheel.deltaY = sf_event.mouseWheelScroll.delta;
+                    event.mouseWheel.delta.x = 0;
+                    event.mouseWheel.delta.y = sf_event.mouseWheelScroll.delta;
                 }
                 Coordinates pos(GetMousePos());
                 event.mouseWheel.pos = {pos[0], pos[1]};
@@ -586,7 +614,7 @@ namespace graphics {
         return new RectangleShape();
     }
     dr4::Text *RenderWindow::CreateText() {
-        return new Text("", "", 0);
+        return new Text();
     }
 
     Coordinates RenderWindow::GetMousePos() const {
@@ -626,6 +654,10 @@ namespace graphics {
 
     double RenderWindow::GetTime() {
         return time(NULL);
+    }
+
+    void Sleep(double time) {
+        sleep(time);
     }
 
     void RenderWindow::StartTextInput() {

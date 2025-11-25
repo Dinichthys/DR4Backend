@@ -33,14 +33,14 @@ namespace graphics {
 
     class Text : public dr4::Text, public sf::Text {
         private:
-            Font font_ = {};
+            const Font* font_;
             dr4::Text::VAlign valign_;
             std::string text_;
 
             dr4::Vec2f pos_;
 
         public:
-            explicit Text(const std::string& text, const std::string& font_file_name, unsigned char height);
+            explicit Text();
 
             explicit Text(const Text& other);
 
@@ -57,7 +57,7 @@ namespace graphics {
             virtual dr4::Color GetColor() const override;
             virtual float GetFontSize() const override;
             virtual dr4::Text::VAlign GetVAlign() const override;
-            virtual const dr4::Font& GetFont() const override;
+            virtual const dr4::Font* GetFont() const override;
 
             virtual void DrawOn(dr4::Texture& texture) const override;
 
@@ -97,19 +97,19 @@ namespace graphics {
     class Circle : public dr4::Circle, public sf::CircleShape {
         private:
             dr4::Vec2f center_;
-            float radius_;
+            dr4::Vec2f radius_;
 
         public:
             explicit Circle();
 
             virtual void SetCenter(dr4::Vec2f center) override;
-            virtual void SetRadius(float radius) override;
+            virtual void SetRadius(dr4::Vec2f radius) override;
             virtual void SetFillColor(dr4::Color color) override;
             virtual void SetBorderColor(dr4::Color color) override;
             virtual void SetBorderThickness(float thickness) override;
 
             virtual dr4::Vec2f GetCenter() const override;
-            virtual float GetRadius() const override;
+            virtual dr4::Vec2f GetRadius() const override;
             virtual dr4::Color GetFillColor() const override;
             virtual dr4::Color GetBorderColor() const override;
             virtual float GetBorderThickness() const override;
@@ -180,10 +180,8 @@ namespace graphics {
 
     class Texture : public dr4::Texture, public sf::RenderTexture {
         private:
-            float width_;
-            float height_;
-
-            dr4::Vec2f pos_;
+            dr4::Rect2f main_rect_;
+            dr4::Rect2f clip_rect_;
 
         public:
             dr4::Vec2f extent_;
@@ -208,6 +206,10 @@ namespace graphics {
             virtual void SetPos(dr4::Vec2f pos) override;
 
             virtual dr4::Vec2f GetPos() const override;
+
+            virtual void SetClipRect(dr4::Rect2f rect) override;
+            virtual void RemoveClipRect() override;
+            virtual dr4::Rect2f GetClipRect() const override;
     };
 
     const size_t kStartWindowWidth = 720;
@@ -262,7 +264,9 @@ namespace graphics {
 
             virtual void Clear(dr4::Color color) override;
 
-            double GetTime() override;
+            virtual double GetTime() override;
+            virtual void Sleep(double time) override;
+
             virtual void StartTextInput() override;
             virtual void StopTextInput() override;
     };
