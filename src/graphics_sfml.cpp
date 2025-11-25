@@ -81,7 +81,6 @@ namespace graphics {
     }
     void Text::SetFont(const dr4::Font* font) {
         font_ = dynamic_cast<const Font*>(font);
-        delete font;
         sf::Text::setFont(*font_);
     }
 
