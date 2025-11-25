@@ -655,7 +655,7 @@ namespace graphics {
         return time(NULL);
     }
 
-    void Sleep(double time) {
+    void RenderWindow::Sleep(double time) {
         sleep(time);
     }
 
