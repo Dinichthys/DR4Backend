@@ -371,12 +371,11 @@ namespace graphics {
 
     void Image::DrawOn(dr4::Texture& texture) const {
         Texture& my_texture = dynamic_cast<Texture&>(texture);
-        sf::Texture txtr(my_texture.getTexture());
-
-        txtr.update(*this, pos_.x, pos_.y);
+        sf::Texture txtr;
+        txtr.loadFromImage(*this);
         sf::Sprite sprite(txtr);
         sprite.setPosition(
-            {my_texture.extent_.x, my_texture.extent_.y}
+            {my_texture.extent_.x + pos_.x, my_texture.extent_.y + pos_.y}
         );
         my_texture.draw(sprite);
     }
