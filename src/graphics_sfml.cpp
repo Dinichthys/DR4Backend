@@ -336,6 +336,14 @@ namespace graphics {
         pos_ = {0, 0};
     }
 
+    Image::Image(const sf::Image& other)
+        :sf::Image(other) {
+        width_ = other.getSize().x;
+        height_ = other.getSize().y;
+
+        pos_ = {0, 0};
+    }
+
     Image::~Image() {}
 
     void Image::SetPixel(size_t x, size_t y, dr4::Color color) {
@@ -470,6 +478,12 @@ namespace graphics {
         return clip_rect_;
     }
 
+    dr4::Image* Texture::GetImage() const {
+        sf::Texture txtr = sf::RenderTexture::getTexture();
+
+        return new Image(txtr.copyToImage());
+    }
+
 //-----------------RENDER WINDOW------------------------------------------------------------------------------
 
     RenderWindow::RenderWindow(size_t width, size_t height, const char* window_name)
@@ -479,6 +493,7 @@ namespace graphics {
         if (strcmp(window_name, "") != 0) {
             sf::RenderWindow::setTitle(window_name);
         }
+        default_font_ = NULL;
     }
 
     RenderWindow::~RenderWindow() {}
@@ -663,6 +678,20 @@ namespace graphics {
     }
     void RenderWindow::StopTextInput() {
         return;
+    }
+
+    void RenderWindow::SetDefaultFont(const dr4::Font* font) {
+        default_font_ = dynamic_cast<const Font*>(font);
+    }
+    const dr4::Font* RenderWindow::GetDefaultFont() {
+        return default_font_;
+    }
+
+    void RenderWindow::SetClipboard(const std::string& string) {
+        clip_board_.setString(string);
+    }
+    std::string RenderWindow::GetClipboard() {
+        return clip_board_.getString();
     }
 
 //------------------------------------------------------------------------------------------------------------

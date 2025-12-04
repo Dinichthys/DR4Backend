@@ -159,6 +159,8 @@ namespace graphics {
         public:
             explicit Image(float width, float height);
 
+            explicit Image(const sf::Image& other);
+
             virtual ~Image();
 
             virtual void SetPixel(size_t x, size_t y, dr4::Color color) override;
@@ -210,6 +212,8 @@ namespace graphics {
             virtual void SetClipRect(dr4::Rect2f rect) override;
             virtual void RemoveClipRect() override;
             virtual dr4::Rect2f GetClipRect() const override;
+
+            virtual dr4::Image* GetImage() const override;
     };
 
     const size_t kStartWindowWidth = 720;
@@ -223,6 +227,10 @@ namespace graphics {
             float height_;
 
             char buffer[sizeof(sf::Uint32) + 1];
+
+            const Font* default_font_;
+
+            sf::Clipboard clip_board_;
 
         public:
             explicit RenderWindow(size_t width = kStartWindowWidth, size_t height = kStartWindowHeight, const char* window_name = "");
@@ -269,6 +277,12 @@ namespace graphics {
 
             virtual void StartTextInput() override;
             virtual void StopTextInput() override;
+
+            virtual void SetDefaultFont( const dr4::Font* font ) override;
+            virtual const dr4::Font* GetDefaultFont() override;
+
+            virtual void SetClipboard( const std::string& string ) override;
+            virtual std::string GetClipboard() override;
     };
 
 }
