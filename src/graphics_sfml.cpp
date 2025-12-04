@@ -479,7 +479,14 @@ namespace graphics {
     }
 
     dr4::Image* Texture::GetImage() const {
-        sf::Texture txtr = sf::RenderTexture::getTexture();
+        sf::RenderTexture render_txtr;
+        render_txtr.create(main_rect_.size.x, main_rect_.size.y);
+
+        sf::Sprite sprite(render_txtr.getTexture());
+        sprite.setPosition({0, 0});
+        render_txtr.draw(sprite);
+
+        sf::Texture txtr = render_txtr.getTexture();
 
         return new Image(txtr.copyToImage());
     }
