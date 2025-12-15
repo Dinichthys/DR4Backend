@@ -66,7 +66,7 @@ namespace graphics {
     Text::~Text() {}
 
     void Text::SetText(const std::string& new_text) {
-        sf::Text::setString(new_text);
+        sf::Text::setString(sf::String::fromUtf8(new_text.begin(), new_text.end()));
         text_ = new_text;
     }
     void Text::SetColor(dr4::Color color) {
@@ -632,8 +632,8 @@ namespace graphics {
     }
 
     Coordinates RenderWindow::GetMousePos() const {
-        float scale_x = GetWidth() / width_;
-        float scale_y = GetHeight() / height_;
+        float scale_x = sf::RenderWindow::getSize().x / width_;
+        float scale_y = sf::RenderWindow::getSize().y / height_;
         return Coordinates(2, (float)sf::Mouse::getPosition(*this).x / scale_x,
                               (float)sf::Mouse::getPosition(*this).y / scale_y);
     }
